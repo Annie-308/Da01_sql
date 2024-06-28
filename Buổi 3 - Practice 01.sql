@@ -39,7 +39,8 @@ Select name from customer
 where not (referee_id = 2) or referee_id is null
 
 -- EX 11
-
+select name, population, area from world
+where area >=3000000 or population >=25000000
 
 -- EX 12
 select distinct author_id as id from views
@@ -47,5 +48,12 @@ where author_id = viewer_id
 order by id asc
 
 -- EX 13
+SELECT part,assembly_step from parts_assembly
+where finish_date is null
+
 -- EX 14
+select * from lyft_drivers
+where yearly_salary <=30000 or yearly_salary >=70000
 -- EX 15
+select * from uber_advertising
+where money_spent >100000 and year = 2019
