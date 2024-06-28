@@ -35,8 +35,17 @@ select product_id from products
 where low_fats = 'Y' and recyclable = 'Y'
 
 -- EX 10
+Select name from customer
+where not (referee_id = 2) or referee_id is null
+
 -- EX 11
+
+
 -- EX 12
+select distinct author_id as id from views
+where author_id = viewer_id
+order by id asc
+
 -- EX 13
 -- EX 14
 -- EX 15
