@@ -40,6 +40,18 @@ where description <> 'boring'
 having id%2 <> 0
 order by rating desc
 -- EX 10
-
+select teacher_id, 
+count(distinct subject_id ) as cnt
+from Teacher
+group by teacher_id
 -- EX 11
+select user_id,
+count(follower_id) as followers_count
+from Followers
+group by user_id
+order by user_id
 -- EX 12
+select class
+from Courses
+group by class
+having count(student) >= 5
