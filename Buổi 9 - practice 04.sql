@@ -16,7 +16,7 @@ from Triangle
 select 
 round(sum(CASE 
 WHEN call_category is null or call_category='n/a' then 1 else 0 
-END)*100/count(*),1) as uncategorised_call_pct
+END)*100.0/count(*),1) as uncategorised_call_pct
 from callers
 -- EX 04
 Select name from customer
