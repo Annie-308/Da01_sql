@@ -55,3 +55,23 @@ full join page_likes as b
 on a.page_id=b.page_id
 where liked_date is null
 order by page_id
+
+-- MID COURSE TEST
+-- CÂU 1
+select distinct replacement_cost
+from film
+order by replacement_cost
+limit 1
+
+-- CÂU 2
+select count(film_id) 
+from film
+where replacement_cost between 9.99 and 19.99
+
+-- CÂU 3
+
+-- CÂU 4
+-- CÂU 5
+-- CÂU 6
+-- CÂU 7
+-- CÂU 8
