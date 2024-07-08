@@ -64,14 +64,66 @@ order by replacement_cost
 limit 1
 
 -- CÂU 2
-select count(film_id) 
+select 
+(case when replacement_cost between '9.99' and '19.99' then 'Low' end,
+case when replacement_cost between '20.00' and '24.99' then 'Mid'end,
+case when replacement_cost between '25.00' and '29.99' then 'High' end) as phan_loai,
+count(film_id)
 from film
-where replacement_cost between 9.99 and 19.99
+group by phan_loai
 
 -- CÂU 3
+select a.title, a.length, c.name
+from public.film as a
+join public.film_category as b on a.film_id=b.film_id
+join public.category as c on b.category_id=c.category_id
+where c.name in ('Drama', 'Sports')
+order by length desc
+limit 1
 
 -- CÂU 4
+select b.name,
+count(film_id)
+from public.film_category as a
+join public.category as b
+on a.category_id=b.category_id
+group by b.name
+order by count(film_id) desc
+limit 1
+
 -- CÂU 5
+select b.first_name, b.last_name, count(film_id)
+from public.film_actor as a
+join public.actor as b
+on a.actor_id=b.actor_id
+group by b.first_name, b.last_name
+order by count(film_id) desc
+limit 1
+
 -- CÂU 6
+select 
+count(a.address) filter (where b.customer_id is null)
+from public.address as a
+left join public.customer as b
+on a.address_id=b.address_id
+
 -- CÂU 7
+select d.city, sum(a.amount)
+from payment as a
+join customer as b on a.customer_id=b.customer_id
+join public.address as c on b.address_id=c.address_id
+join public.city as d on c.city_id=d.city_id
+group by d.city
+order by sum(a.amount) desc
+limit 1
+
 -- CÂU 8
+select concat(d.city,', ',e.country) as city_of_country, sum(a.amount)
+from payment as a
+join customer as b on a.customer_id=b.customer_id
+join public.address as c on b.address_id=c.address_id
+join public.city as d on c.city_id=d.city_id
+join public.country as e on d.country_id=e.country_id
+group by d.city, e.country
+order by sum(a.amount) desc
+limit 1
