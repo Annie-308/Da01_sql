@@ -65,9 +65,10 @@ limit 1
 
 -- CÂU 2
 select 
-(case when replacement_cost between '9.99' and '19.99' then 'Low' end,
-case when replacement_cost between '20.00' and '24.99' then 'Mid'end,
-case when replacement_cost between '25.00' and '29.99' then 'High' end) as phan_loai,
+case 
+when replacement_cost between '9.99' and '19.99' then 'Low',
+when replacement_cost between '20.00' and '24.99' then 'Mid',
+when replacement_cost between '25.00' and '29.99' then 'High' end as type,
 count(film_id)
 from film
 group by phan_loai
