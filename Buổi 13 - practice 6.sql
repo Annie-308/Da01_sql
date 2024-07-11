@@ -63,8 +63,19 @@ join twt_approved as b
 on a.month=b.month and a.country=b.country
 
 -- EX 07
+select product_id, min(year) as first_year, quantity, price
+from Sales
+group by product_id
+
 -- EX 08
+select customer_id 
+from Customer
+group by customer_id
+having count(distinct product_key) >= (select count(distinct product_key) from Product)
+
 -- EX 09
+
+
 -- EX 10
 -- EX 11
 -- EX 12
