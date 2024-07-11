@@ -44,7 +44,7 @@ on a.page_id=b.page_id
 where liked_date is null
 order by page_id
 
--- EX 05: chưa được
+-- EX 05
 
 
 -- EX 06
@@ -74,8 +74,51 @@ group by customer_id
 having count(distinct product_key) >= (select count(distinct product_key) from Product)
 
 -- EX 09
-
+select employee_id from Employees
+where manager_id not in (select employee_id from Employees)
 
 -- EX 10
+with twt_job_count as(
+select company_id, title, count(*) as job_count
+from job_listings
+group by company_id, title)
+select count(*) from twt_job_count
+where job_count > 1
+
 -- EX 11
+with twt_name as(
+select b.name as results
+from MovieRating as a
+join Users as b on a.user_id=b.user_id
+having max(rating)),
+twt_movie as(
+select c.title
+from MovieRating as a
+join Movies as c
+on a.movie_id=c.movie_id
+where substring(created_at from 1 for 7)='2020-02'
+group by a.movie_id
+order by avg(a.rating) desc, c.title
+limit 1)
+select results from twt_name
+union 
+select title from twt_movie
+
 -- EX 12
+with new as (
+select requester_id as id, count(accepter_id) as num from RequestAccepted where requester_id='1'
+union 
+select accepter_id as id, count(requester_id) as num from RequestAccepted where accepter_id='1'
+union 
+select requester_id as id, count(accepter_id) as num from RequestAccepted where requester_id='2'
+union 
+select accepter_id as id, count(requester_id) as num from RequestAccepted where accepter_id='2'
+union 
+select requester_id as id, count(accepter_id) as num from RequestAccepted where requester_id='3'
+union 
+select accepter_id as id, count(requester_id) as num from RequestAccepted where accepter_id='3')
+select id, sum(num) as num
+from new
+group by id
+order by sum(num)  desc
+limit 1
