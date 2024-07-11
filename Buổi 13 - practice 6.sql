@@ -45,7 +45,18 @@ where liked_date is null
 order by page_id
 
 -- EX 05
-
+with twt_new_6 as (
+select distinct user_id, extract(month from event_date) as month
+from user_actions
+where extract(month from event_date)='6'),
+twt_new_7 as (
+select distinct user_id, extract(month from event_date) as month
+from user_actions
+where extract(month from event_date)='7')
+select c.month, count(*) as monthly_active_users
+from twt_new_6 as b 
+join twt_new_7 as c on b.user_id=c.user_id
+group by c.month
 
 -- EX 06
 with twt_total as(
