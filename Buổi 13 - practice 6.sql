@@ -86,7 +86,9 @@ having count(distinct product_key) >= (select count(distinct product_key) from P
 
 -- EX 09
 select employee_id from Employees
-where manager_id not in (select employee_id from Employees)
+where manager_id not in (select employee_id from Employees) 
+and salary < 30000
+order by employee_id
 
 -- EX 10
 with twt_job_count as(
@@ -116,20 +118,22 @@ union
 select title from twt_movie
 
 -- EX 12
-with new as (
-select requester_id as id, count(accepter_id) as num from RequestAccepted where requester_id='1'
-union 
-select accepter_id as id, count(requester_id) as num from RequestAccepted where accepter_id='1'
-union 
-select requester_id as id, count(accepter_id) as num from RequestAccepted where requester_id='2'
-union 
-select accepter_id as id, count(requester_id) as num from RequestAccepted where accepter_id='2'
-union 
-select requester_id as id, count(accepter_id) as num from RequestAccepted where requester_id='3'
-union 
-select accepter_id as id, count(requester_id) as num from RequestAccepted where accepter_id='3')
-select id, sum(num) as num
+with 
+request as(
+    select requester_id as id, count(*) as count
+    from RequestAccepted
+    group by requester_id),
+accept as (
+    select accepter_id as id, count(*) as count
+    from RequestAccepted
+    group by accepter_id),
+new as (
+    select * from request
+    union all
+    select * from accept)
+select id, sum(count) as num
 from new
 group by id
-order by sum(num)  desc
+order by num desc 
 limit 1
+
