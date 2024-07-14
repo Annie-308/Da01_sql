@@ -52,20 +52,21 @@ round(avg(tweet_count) over (partition by user_id order by tweet_date ROWS BETWE
 FROM tweets
 
 -- EX 06
-WITH cte as(
-select 
-credit_card_id, lag(credit_card_id) over(partition by merchant_id) as previous_credit_card_id,
-amount, lag(amount) over(partition by merchant_id) as previous_amount,
-transaction_timestamp, lag(transaction_timestamp)over(partition by merchant_id) as previous_transaction_timestamp
-from transactions
+WITH cte 
+as(
+    select 
+    credit_card_id, 
+    lag(credit_card_id) over(partition by merchant_id, credit_card_id,amount) as previous_credit_card_id,
+    amount, 
+    lag(amount) over(partition by merchant_id, credit_card_id,amount) as previous_amount,
+    transaction_timestamp, 
+    lag(transaction_timestamp)over(partition by merchant_id, credit_card_id,amount) as previous_transaction_timestamp
+    from transactions
 )
 select count(*) as payment_count
 from cte 
-where credit_card_id=previous_credit_card_id
-and amount=previous_amount 
-and (extract(hour from transaction_timestamp - previous_transaction_timestamp)*60
-+ extract(minute from transaction_timestamp - previous_transaction_timestamp)<=10
-)
+where (extract(hour from transaction_timestamp - previous_transaction_timestamp)*60
++ extract(minute from transaction_timestamp - previous_transaction_timestamp)<=10)
 
  
 -- EX 07
