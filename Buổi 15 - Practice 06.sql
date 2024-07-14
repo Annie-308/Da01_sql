@@ -46,10 +46,18 @@ where rank='1'
 group by user_id, transaction_date
 order by transaction_date
 
--- EX 05: chưa được
-SELECT user_id, tweet_date,
-round(avg(tweet_count) over (partition by user_id order by tweet_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW),2)
-FROM tweets
+-- EX 05
+with cte 
+as(
+    select user_id, tweet_date, tweet_count,  lag(tweet_count) over(partition by user_id order by tweet_date) as day_before,
+    lag(tweet_count,2) over(partition by user_id order by tweet_date) as day2_before,
+    round((tweet_count + lag(tweet_count) over(partition by user_id order by tweet_date)
+    + lag(tweet_count,2) over(partition by user_id order by tweet_date))/3.00,2) as avg_tweet
+    from tweets
+)
+SELECT user_id,tweet_date,
+round(coalesce(avg_tweet,coalesce(day2_before, (tweet_count + coalesce(day_before,tweet_count))/2.00)),2) as rolling_avg_3d
+from cte
 
 -- EX 06
 WITH cte 
