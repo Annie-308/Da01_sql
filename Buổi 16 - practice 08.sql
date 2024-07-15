@@ -20,3 +20,15 @@ from cte
     and extract(month from event_date)=extract(month from previous_date)
     and extract(day from event_date)=extract(day from previous_date)+1) / count(distinct player_id),2) as fraction
 from cte
+
+-- EX 06
+with cte1 as(
+    with cte as(
+        select b.name as Department, a.name as Employee , a.salary as Salary
+        from Employee as a
+        join Department as b
+        on a.departmentId=b.id)
+        select *, dense_rank() over(partition by Department order by Salary desc ) as rank_salary
+from cte)
+select Department, Employee, Salary from cte1
+where  rank_salary <=3
