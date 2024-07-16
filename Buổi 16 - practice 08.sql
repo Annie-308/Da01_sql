@@ -10,7 +10,7 @@ when customer_pref_delivery_date=order_date then 1 else 0
 end)*100/count(*),2) as immediate_percentage
 from cte1
 
--- EX 02: kh biết sai ở đâu
+-- EX 02: chưa được
 with cte as (
     select *, lag(event_date) over(partition by player_id) as previous_date,
     rank() over(partition by player_id) as rank_date
@@ -50,7 +50,7 @@ with cte1 as(
 from cte)
 select Department, Employee, Salary from cte1
 where  rank_salary <=3
--- EX 07: kh biết sai ở đâu
+-- EX 07: chưa được
 with cte as (
   select *
   from Queue
@@ -62,7 +62,7 @@ cte1 as(
   from cte1
 where total_weight=1000
 
--- EX 08: kh biết sai ở đâu
+-- EX 08: chưa được
 with cte as(
 SELECT product_id, new_price as price, change_date,
 rank() over(partition by product_id order by change_date desc) as rannk
