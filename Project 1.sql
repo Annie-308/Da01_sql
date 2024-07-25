@@ -58,3 +58,17 @@ set month_id = extract(month from orderdate)
 
 update sales_dataset_rfm_prj
 set year_id = extract(year from orderdate)
+
+--Bài 5
+with cte as(
+	select Q1-1.5*IQR AS min_value,
+		Q3+1.5*IQR AS max_value
+from(select 
+percentile_cont(0.25) within group (order by quantityordered) as Q1,
+percentile_cont(0.75) within group (order by quantityordered) as Q3,
+percentile_cont(0.75) within group (order by quantityordered)-percentile_cont(0.25) within group (order by quantityordered) as IQR
+from public.sales_dataset_rfm_prj) as a)
+select * from sales_dataset_rfm_prj
+where quantityordered < (select min_value from cte) 
+	or quantityordered > (select max_value from cte)
+
