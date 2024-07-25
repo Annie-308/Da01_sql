@@ -60,15 +60,19 @@ update sales_dataset_rfm_prj
 set year_id = extract(year from orderdate)
 
 --Bài 5
-with cte as(
-	select Q1-1.5*IQR AS min_value,
-		Q3+1.5*IQR AS max_value
-from(select 
-percentile_cont(0.25) within group (order by quantityordered) as Q1,
-percentile_cont(0.75) within group (order by quantityordered) as Q3,
-percentile_cont(0.75) within group (order by quantityordered)-percentile_cont(0.25) within group (order by quantityordered) as IQR
-from public.sales_dataset_rfm_prj) as a)
-select * from sales_dataset_rfm_prj
-where quantityordered < (select min_value from cte) 
-	or quantityordered > (select max_value from cte)
+with cte1 as(
+	with cte as(
+		select Q1-1.5*IQR AS min_value, Q3+1.5*IQR AS max_value
+		from(select 
+		percentile_cont(0.25) within group (order by quantityordered) as Q1,
+		percentile_cont(0.75) within group (order by quantityordered) as Q3,
+		percentile_cont(0.75) within group (order by quantityordered)-percentile_cont(0.25) within group (order by quantityordered) as IQR
+		from public.sales_dataset_rfm_prj) as a)
+	select * from sales_dataset_rfm_prj
+	where quantityordered < (select min_value from cte) or quantityordered > (select max_value from cte))
+delete from sales_dataset_rfm_prj
+where quantityordered in (select quantityordered from cte1)
 
+-- Bài 6
+Create table SALES_DATASET_RFM_PRJ_CLEAN as
+(select * from public.sales_dataset_rfm_prj)
