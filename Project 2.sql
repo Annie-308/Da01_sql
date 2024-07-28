@@ -65,22 +65,22 @@ order by day, b.category
 
 --II. Tạo metric trước khi dựng dashboard
 --Bài 1
-create view bigquery-public-data.thelook_ecommerce.vw_ecommerce_analyst as(
+create view vw_ecommerce_analyst as(
 with cte as(
-select 
-format_date('%m', a.created_at) as month,
-format_date('%Y', a.created_at) as year,
-c.category as Product_category,
-round(sum(b.sale_price),2) as TPV,
-count(distinct b.order_id) as TPO,
-round(sum(c.cost),2) as total_cost,
-round(sum(b.sale_price)-sum(c.cost),2) as total_profit,
-round((sum(b.sale_price)-sum(c.cost))/sum(c.cost),2) as Profit_to_cost_ratio
-from bigquery-public-data.thelook_ecommerce.orders as a
-join bigquery-public-data.thelook_ecommerce.order_items as b on a.order_id=b.order_id
-join bigquery-public-data.thelook_ecommerce.products as c on b.id=c.id
-group by year, month, Product_category
-order by year, month, Product_category)
+        select 
+        format_date('%m', a.created_at) as month,
+        format_date('%Y', a.created_at) as year,
+        c.category as Product_category,
+        round(sum(b.sale_price),2) as TPV,
+        count(distinct b.order_id) as TPO,
+        round(sum(c.cost),2) as total_cost,
+        round(sum(b.sale_price)-sum(c.cost),2) as total_profit,
+        round((sum(b.sale_price)-sum(c.cost))/sum(c.cost),2) as Profit_to_cost_ratio
+        from bigquery-public-data.thelook_ecommerce.orders as a
+        join bigquery-public-data.thelook_ecommerce.order_items as b on a.order_id=b.order_id
+        join bigquery-public-data.thelook_ecommerce.products as c on b.id=c.id
+        group by year, month, Product_category
+        order by year, month, Product_category)
 select month, year, product_category, TPV, TPO,
 round((TPV-LAG(TPV) over(partition by Product_category order by year, month))*100/LAG(TPV) over(partition by Product_category order by year, month),2)||' %'as Revenue_growth,
 round((TPO-LAG(TPO) over(partition by Product_category order by year, month))*100/LAG(TPO) over(partition by Product_category order by year, month),2)||' %'as Order_growth,
@@ -88,3 +88,35 @@ total_cost, total_profit, Profit_to_cost_ratio
 from cte)
 
 -- Bài 2
+with cte as(
+    select 
+    format_date('%m', a.created_at) as month,
+    format_date('%Y', a.created_at) as year,
+    c.category as Product_category,
+    round(sum(b.sale_price),2) as TPV,
+    count(distinct b.order_id) as TPO,
+    round(sum(c.cost),2) as total_cost,
+    round(sum(b.sale_price)-sum(c.cost),2) as total_profit,
+    round((sum(b.sale_price)-sum(c.cost))/sum(c.cost),2) as Profit_to_cost_ratio
+    from bigquery-public-data.thelook_ecommerce.orders as a
+    join bigquery-public-data.thelook_ecommerce.order_items as b on a.order_id=b.order_id
+    join bigquery-public-data.thelook_ecommerce.products as c on b.id=c.id
+    group by year, month, Product_category
+    order by year, month, Product_category)
+, dataset as(
+    select month, year, product_category, TPV, TPO,
+    round((TPV-LAG(TPV) over(partition by Product_category order by year, month))*100/LAG(TPV) over(partition by Product_category order by year, month),2)||' %'as Revenue_growth,
+    round((TPO-LAG(TPO) over(partition by Product_category order by year, month))*100/LAG(TPO) over(partition by Product_category order by year, month),2)||' %'as Order_growth,
+    total_cost, total_profit, Profit_to_cost_ratio
+    from cte)
+,cohort_data as(
+    select user_id, revenue, format_date('%Y-%m',first_month_year) as cohort_date, 
+    (extract(year from created_at)-extract(year from first_month_year))*12+
+    extract(month from created_at)-extract(month from first_month_year)+1 as index, 
+    from(select user_id, round(sale_price,2) as revenue, created_at,
+    min(created_at) over(partition by user_id order by created_at) as first_month_year
+    from bigquery-public-data.thelook_ecommerce.order_items))
+select cohort_date, index, 
+count(user_id) as count, round(sum(revenue),2) as revenue
+from cohort_data
+group by cohort_date, index
