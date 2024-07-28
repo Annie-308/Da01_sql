@@ -63,7 +63,7 @@ where date(a.created_at) between '2022-01-15' and '2022-04-15'
 group by date(a.created_at), b.category
 order by day, b.category
 
---II. Tạo metric trước khi dựng dashboard
+--II. 
 --Bài 1
 create view vw_ecommerce_analyst as(
 with cte as(
@@ -109,14 +109,30 @@ with cte as(
     round((TPO-LAG(TPO) over(partition by Product_category order by year, month))*100/LAG(TPO) over(partition by Product_category order by year, month),2)||' %'as Order_growth,
     total_cost, total_profit, Profit_to_cost_ratio
     from cte)
-,cohort_data as(
+,cohort as(
     select user_id, revenue, format_date('%Y-%m',first_month_year) as cohort_date, 
     (extract(year from created_at)-extract(year from first_month_year))*12+
     extract(month from created_at)-extract(month from first_month_year)+1 as index, 
     from(select user_id, round(sale_price,2) as revenue, created_at,
     min(created_at) over(partition by user_id order by created_at) as first_month_year
     from bigquery-public-data.thelook_ecommerce.order_items))
-select cohort_date, index, 
-count(user_id) as count, round(sum(revenue),2) as revenue
-from cohort_data
-group by cohort_date, index
+, cohort_data as(
+    select cohort_date, index, 
+    count(user_id) as count_user, round(sum(revenue),2) as revenue
+    from cohort
+    group by cohort_date, index)
+--customer_cohort
+,customer_cohort as(
+    select cohort_date,
+    sum(case when index=1 then count_user else 0 end) as t1,
+    sum(case when index=2 then count_user else 0 end) as t2,
+    sum(case when index=3 then count_user else 0 end) as t3,
+    sum(case when index=4 then count_user else 0 end) as t4
+    from cohort_data
+    group by cohort_date)
+--retention cohort
+select t1/t1*100 || '%' as t1,
+round(t2/t1*100,2) || '%' as t2, 
+round(t3/t1*100,2) || '%' as t3, 
+round(t4/t1*100,2) || '%' as t4
+from customer_cohort
