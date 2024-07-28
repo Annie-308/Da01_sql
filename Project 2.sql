@@ -1,3 +1,4 @@
+--I. Ad-hoc tasks:
 -- Bài 1: 
 select  FORMAT_DATE('%Y-%m', created_at) as year_month,
     count(distinct order_id) as total_order, 
@@ -6,8 +7,9 @@ from bigquery-public-data.thelook_ecommerce.orders
 where status='Shipped' and FORMAT_DATE('%Y-%m', created_at) between '2019-01' and '2022-04'
 group by FORMAT_DATE('%Y-%m', created_at)
 order by year_month
-/*
-*/
+/*Nhìn chung, từ t1/2019 đến t4/2022 tổng số lượng đơn hàng và tổng số lượng người dùng đều có sự tăng trưởng 
+đều đặn và liên tục theo thời gian. Điều này là một dấu hiệu tích cực cho sự ổn định và khả năng phát triển 
+bền vững của TheLook trong tương lai */
 -- Bài 2: 
 select FORMAT_DATE('%Y-%m', a.created_at) as year_month,
     count(distinct a.user_id) as distinct_user,
@@ -16,8 +18,8 @@ from bigquery-public-data.thelook_ecommerce.orders as a join bigquery-public-dat
 where FORMAT_DATE('%Y-%m',a.created_at) between '2019-01' and '2022-04'
 group by year_month
 order by year_month
-/*
-*/
+/*Từ T1/2019 đến T4/2022, số lượng người dùng có sự tăng trưởng rõ rệt đạt mức 1543 người vào T4/2022, trong khi đó, giá trị 
+đơn hàng trung bình giữ ở mức ổn định khoảng 60.*/
 --Bài 3
 with cte as(
     select  first_name, last_name, age, gender, 'yongest' as tag
@@ -33,7 +35,7 @@ select gender,age, tag, count(*)
 from cte
 group by gender,age, tag
 /* Cả 2 giới tính nam và nữ đều có cùng mức tuổi trẻ nhất là 12 và lớn nhất là 70 tuổi. 
-    Nhóm giới tính nữ, 70 tuổi có số lượng 423 người thấp hơn so với cả 3 nhóm còn lại với số lượng xấp xỉ khoảng 435 
+    Nhóm giới tính nữ, 70 tuổi có số lượng 423 người thấp hơn so với cả 3 nhóm còn lại với số lượng xấp xỉ khoảng 435 người
     */
 -- Bài 4
 with cte as(
@@ -60,3 +62,29 @@ join bigquery-public-data.thelook_ecommerce.products as b on a.id=b.id
 where date(a.created_at) between '2022-01-15' and '2022-04-15'
 group by date(a.created_at), b.category
 order by day, b.category
+
+--II. Tạo metric trước khi dựng dashboard
+--Bài 1
+create view bigquery-public-data.thelook_ecommerce.vw_ecommerce_analyst as(
+with cte as(
+select 
+format_date('%m', a.created_at) as month,
+format_date('%Y', a.created_at) as year,
+c.category as Product_category,
+round(sum(b.sale_price),2) as TPV,
+count(distinct b.order_id) as TPO,
+round(sum(c.cost),2) as total_cost,
+round(sum(b.sale_price)-sum(c.cost),2) as total_profit,
+round((sum(b.sale_price)-sum(c.cost))/sum(c.cost),2) as Profit_to_cost_ratio
+from bigquery-public-data.thelook_ecommerce.orders as a
+join bigquery-public-data.thelook_ecommerce.order_items as b on a.order_id=b.order_id
+join bigquery-public-data.thelook_ecommerce.products as c on b.id=c.id
+group by year, month, Product_category
+order by year, month, Product_category)
+select month, year, product_category, TPV, TPO,
+round((TPV-LAG(TPV) over(partition by Product_category order by year, month))*100/LAG(TPV) over(partition by Product_category order by year, month),2)||' %'as Revenue_growth,
+round((TPO-LAG(TPO) over(partition by Product_category order by year, month))*100/LAG(TPO) over(partition by Product_category order by year, month),2)||' %'as Order_growth,
+total_cost, total_profit, Profit_to_cost_ratio
+from cte)
+
+-- Bài 2
