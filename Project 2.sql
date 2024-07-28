@@ -30,21 +30,24 @@ with cte as(
 select gender,age, tag, count(*)  
 from cte
 group by gender,age, tag
-/*
-*/
+/* Cả 2 giới tính nam và nữ đều có cùng mức tuổi trẻ nhất là 12 và lớn nhất là 70 tuổi. 
+    Nhóm giới tính nữ, 70 tuổi có số lượng 423 người thấp hơn so với cả 3 nhóm còn lại với số lượng xấp xỉ khoảng 435 
+    */
 -- Bài 4
 with cte as(
     select *, 
     dense_rank() over(partition by year_month order by profit desc) as rank_profit
     from 
-        (select a.product_id, b.name,
+        (select 
         extract(year from a.created_at) || '-' || extract(month from a.created_at) as year_month,
+        a.product_id, b.name,
         round(sum(a.sale_price),2) as revenue, round(sum(b.cost),2) as cost, round(sum(a.sale_price-b.cost),2) as profit,
         from bigquery-public-data.thelook_ecommerce.order_items as a
         join bigquery-public-data.thelook_ecommerce.products as b on a.id=b.id
         group by a.product_id, b.name, extract(year from a.created_at) || '-' || extract(month from a.created_at)))
 select * from cte
 where rank_profit <= 5
+order by year_month
 
 -- Bài 5
 select date(a.created_at) as day, 
