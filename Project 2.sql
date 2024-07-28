@@ -27,10 +27,11 @@ with cte as(
     from bigquery-public-data.thelook_ecommerce.users
     where age in (select max(age) from  bigquery-public-data.thelook_ecommerce.users group by gender)
     and extract(year from created_at) || '-' || extract(month from created_at) between '2019-01' and '2022-04')
-select gender,tag, count(*)  
+select gender,age, tag, count(*)  
 from cte
-group by gender,tag
-
+group by gender,age, tag
+/*
+*/
 -- Bài 4
 with cte as(
     select *, 
