@@ -142,5 +142,16 @@ from customer_cohort
 --Visualize trên excel: 
 https://docs.google.com/spreadsheets/d/10htEoTLCKbegX-ycF0nehyTkaNlQzVoE/edit?usp=sharing&ouid=101215355215697439234&rtpof=true&sd=true
 
-/*
+/*NHẬN XÉT:
+Nhìn vào biểu đồ cohort, ta thấy rằng số lượng khách hàng mới gia tăng liên tục theo thời gian. Điều này cho thấy các sản phẩm/dịch vụ 
+của doanh nghiệp đang đáp ứng rất tốt nhu cầu và mong muốn của khách hàng (chất lượng, giá cả,...). Vào T7/2024 số lượng khách hàng mới đạt mức 11679 
+(tăng 105% so với tháng trước). Đây là một dấu hiệu tích cực cho thấy rằng hoặc chiến lược marketing của doanh nghiệp đnag vô cùng hiệu quả 
+(có thể là do xác định đúng tệp khách hàng, nội dung marketing hấp dẫn, phù hợp,...) hoặc chất lượng sản phẩm/dịch vụ của doanh nghiệp đã có sự cải tiến
+ngày càng phù hợp và dễ tiếp cận với người tiêu dùng...
+Ngoài ra, tỉ lệ khách hàng quay lại mua hàng còn thấp, tuy nhiên theo thời gian con số này đang dần được cải thiện.
+
+ĐỀ XUẤT:
+- Duy trì và phát triển các chính sách hiện tại giúp mang lại khách hàng mới cho doanh nghiệp (marketing, sản phẩm,...)
+- Cải thiện tỉ lệ khách hàng quay lại mua hàng bằng cách cá nhân hóa trải nghiệm mua sắm, 
+cải thiện quy trình từ tư vấn, mua sắm, bảo hành, đổi trả cho khách hàng, xây dựng mối quan hệ với khách hàng (chào mừng, sinh nhật, voucher khuyến mãi,...)
 */
