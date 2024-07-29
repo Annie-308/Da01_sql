@@ -129,10 +129,18 @@ with cte as(
     sum(case when index=3 then count_user else 0 end) as t3,
     sum(case when index=4 then count_user else 0 end) as t4
     from cohort_data
-    group by cohort_date)
+    group by cohort_date
+    order by cohort_date)
 --retention cohort
-select t1/t1*100 || '%' as t1,
+select cohort_date,
+t1/t1*100 || '%' as t1,
 round(t2/t1*100,2) || '%' as t2, 
 round(t3/t1*100,2) || '%' as t3, 
 round(t4/t1*100,2) || '%' as t4
 from customer_cohort
+
+--Visualize trên excel: 
+https://docs.google.com/spreadsheets/d/10htEoTLCKbegX-ycF0nehyTkaNlQzVoE/edit?usp=sharing&ouid=101215355215697439234&rtpof=true&sd=true
+
+/*
+*/
